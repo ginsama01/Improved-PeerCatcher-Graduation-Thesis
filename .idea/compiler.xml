@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="PeerCatcher" />
+        <module name="Improved-PeerCatcher-Graduation-Thesis" />
       </profile>
     </annotationProcessing>
   </component>

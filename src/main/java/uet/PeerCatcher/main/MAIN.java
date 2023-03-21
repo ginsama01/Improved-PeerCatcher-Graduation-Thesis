@@ -15,17 +15,17 @@ public class MAIN {
 
         long st_time = System.currentTimeMillis();
 
-        long st_time_1 = System.currentTimeMillis();
-        P2PHostIdentify.run(ID + "");
-        long end_time_1 = System.currentTimeMillis();
-
-        long st_time_2 = System.currentTimeMillis();
-        CalculateMutualContactScore.run(ID + "");
-        long end_time_2 = System.currentTimeMillis();
-
-        long st_time_3 = System.currentTimeMillis();
-        LouvainMain.run(ID + "");
-        long end_time_3 = System.currentTimeMillis();
+//        long st_time_1 = System.currentTimeMillis();
+//        P2PHostIdentify.run(ID + "");
+//        long end_time_1 = System.currentTimeMillis();
+//
+//        long st_time_2 = System.currentTimeMillis();
+//        CalculateMutualContactScore.run(ID + "");
+//        long end_time_2 = System.currentTimeMillis();
+//
+//        long st_time_3 = System.currentTimeMillis();
+//        LouvainMain.run(ID + "");
+//        long end_time_3 = System.currentTimeMillis();
 
         long st_time_4 = System.currentTimeMillis();
         BotnetIdentify.run(ID + "");
@@ -33,9 +33,9 @@ public class MAIN {
 
         long end_time = System.currentTimeMillis();
 
-		pw.println(ID + "\t" + (end_time_1 - st_time_1) + "\t" + (end_time_2 - st_time_2) + "\t"
-				+ (end_time_3 - st_time_3) + "\t" + (end_time_4 - st_time_4) + "\t" + (end_time - st_time));
-        pw.close();
+//		pw.println(ID + "\t" + (end_time_1 - st_time_1) + "\t" + (end_time_2 - st_time_2) + "\t"
+//				+ (end_time_3 - st_time_3) + "\t" + (end_time_4 - st_time_4) + "\t" + (end_time - st_time));
+//        pw.close();
     }
 
     public static void main(String[] args) throws Exception {
