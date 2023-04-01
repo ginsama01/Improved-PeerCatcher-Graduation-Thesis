@@ -59,13 +59,13 @@ public class P2PHostIdentify {
             String[] line = value.toString().split("\t");
             String[] sets = line[1].split(",");
 			String bppout = sets[2];
-			bppout = bppout.substring(0, bppout.length() - 1) ;
+			bppout = bppout.substring(0, bppout.length() - 1);
             if (bppout.length() == 0) bppout = "0";
 			String bppin = sets[3];
-			bppin = bppin.substring(0, bppin.length() - 1) + "0";
+			bppin = bppin.substring(0, bppin.length() - 1);
             if (bppin.length() == 0) bppin = "0";
 //			System.out.println(line[0] + "," + sets[0] + "," + bppout + "," + bppin);
-//            Integer bppout = Integer.parseInt(sets[2]);
+//            Integer bppout = Integer.parseInt(sets[2]);0
 //            Integer bppin = Integer.parseInt(sets[3]);
 //            bppout /= p2p_host_merging_threshold;
 //            bppin /= p2p_host_merging_threshold;

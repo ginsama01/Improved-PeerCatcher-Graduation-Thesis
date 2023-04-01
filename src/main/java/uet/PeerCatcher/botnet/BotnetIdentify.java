@@ -199,11 +199,20 @@ public class BotnetIdentify {
                         double Sum_MCS = 0;
                         double Sum_InternalDegree = 0;
                         double Sum_LocalAssortativity = 0;
+                        double m = 0;
+                        double n = 0;
+                        double mean = 0;
+                        double standard_deviation = 0;
+                        double[] destination_diversity = new double[nodes.size()];
+
                         BufferedReader br_BGP = new BufferedReader(new FileReader(
                                 PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/IDtoIP.txt"));
 
                         while ((line = br_BGP.readLine()) != null) {
                             if (nodes.contains(line.split("\t")[0])) {
+                                destination_diversity[(int)m] = Double.parseDouble(line.split("\t")[3]);
+                                mean += destination_diversity[(int)m];
+                                m += 1;
                                 Sum_LocalAssortativity += local_assortativity[Integer.parseInt(line.split("\t")[0])];
                                 Sum_BGP += Double.parseDouble(line.split("\t")[3])
                                         / Double.parseDouble(line.split("\t")[5]);
@@ -213,6 +222,16 @@ public class BotnetIdentify {
                             }
                         }
                         br_BGP.close();
+
+                        mean /= m;
+                        for (int i = 0; i < (int)m; ++i) {
+                            standard_deviation += Math.pow(destination_diversity[i] - mean, 2);
+                        }
+
+                        standard_deviation /= m;
+                        standard_deviation = Math.sqrt((standard_deviation));
+
+                        double coefficient_variation = standard_deviation / mean;
 
                         BufferedReader br_MCS = new BufferedReader(new FileReader(
                                 PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/LouvainInput.txt"));
@@ -225,16 +244,15 @@ public class BotnetIdentify {
                         }
                         br_MCS.close();
 
-                        double m = nodes.size();
-                        double n = m * (m - 1) / 2;
+                        n = m * (m-1) / 2;
 
-                        pw.println(com_id + "," + m + "," + n + "," + Sum_BGP / m + "," + Sum_MCS / n + "," + Sum_InternalDegree / n + "," + Sum_LocalAssortativity);
+                        pw.println(com_id + "," + m + "," + n + "," + Sum_BGP / m + "," + Sum_MCS / n + "," + Sum_InternalDegree / n + "," + Sum_LocalAssortativity + "," + coefficient_variation);
 
                         if (Sum_BGP / m > botnet_detection_threshold_bgp
                                 && Sum_MCS / n > botnet_detection_threshold_mcs
                                     && Sum_InternalDegree > botnet_detection_threshold_internal_degree
                                         && Sum_LocalAssortativity > getBotnet_detection_threshold_local_assor) {
-                            pw_2.println(com_id + "," + m + "," + n + "," + Sum_BGP / m + "," + Sum_MCS / n + "," + Sum_InternalDegree / n + "," + Sum_LocalAssortativity);
+                            pw_2.println(com_id + "," + m + "," + n + "," + Sum_BGP / m + "," + Sum_MCS / n + "," + Sum_InternalDegree / n + "," + Sum_LocalAssortativity + "," + coefficient_variation);
                             pw_2.println(nodes);
                             pw_2.println(nodes_ips);
                             PotentialIP.addAll(nodes);

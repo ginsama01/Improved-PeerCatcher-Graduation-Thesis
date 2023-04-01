@@ -77,10 +77,12 @@ public class GenerateMutualContactGraph implements Runnable {
 
             try {
                 tempFreq1 = CalculateMutualContactScore.map_p2p.get(srcIP1 + "\t" + proto + "," + dstIP + "," + bppout + "," + bppin);
+//                System.out.println(tempFreq1);
                 if(tempFreq1 < frequency_threshold) {
                     continue;
                 }
                 tempFreq2 = CalculateMutualContactScore.map_p2p.get(srcIP2 + "\t" + proto + "," + dstIP + "," + bppout + "," + bppin);
+//                System.out.println(tempFreq2);
                 if(tempFreq2 < frequency_threshold) {
                     continue;
                 }
@@ -99,6 +101,7 @@ public class GenerateMutualContactGraph implements Runnable {
         set2 = null;
         minset = null;
         maxset = null;
+
         score = (double) (sumIp) / (double) (a + b - c);
 
 //		System.out.println(node1 + " - " + node2 + " - score: " + score + " sumIp: " + sumIp + " totalIP: " + (a + b - c) + " totalInnerIP: " + c);
