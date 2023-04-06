@@ -104,7 +104,6 @@ public class GenerateMutualContactGraph implements Runnable {
 
         score = (double) (sumIp) / (double) (a + b - c);
 
-//		System.out.println(node1 + " - " + node2 + " - score: " + score + " sumIp: " + sumIp + " totalIP: " + (a + b - c) + " totalInnerIP: " + c);
 
         if (c > 0 && score > mutual_contact_score_threshold) {
             try {

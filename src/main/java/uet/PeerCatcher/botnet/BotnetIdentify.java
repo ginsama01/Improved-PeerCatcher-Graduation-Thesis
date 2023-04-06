@@ -19,7 +19,8 @@ public class BotnetIdentify {
     public static double botnet_detection_threshold_bgp;
     public static double botnet_detection_threshold_mcs;
     public static double botnet_detection_threshold_internal_degree = PeerCatcherConfigure.INTERNAL_DEGREE_THRESHOLD;
-    public static double getBotnet_detection_threshold_local_assor = PeerCatcherConfigure.LOCAL_ASSORTATIVITY_THRESHOLD;
+    public static double botnet_detection_threshold_local_assor = PeerCatcherConfigure.LOCAL_ASSORTATIVITY_THRESHOLD;
+    public static double coefficient_threshold = PeerCatcherConfigure.COEFFICIENT_VARIATION_THRESHOLD;
     public static void Botnet_Detection(String Graph) throws IOException {
         FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/botnet_detection"));
         File f = new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/botnet_detection");
@@ -251,7 +252,8 @@ public class BotnetIdentify {
                         if (Sum_BGP / m > botnet_detection_threshold_bgp
                                 && Sum_MCS / n > botnet_detection_threshold_mcs
                                     && Sum_InternalDegree > botnet_detection_threshold_internal_degree
-                                        && Sum_LocalAssortativity > getBotnet_detection_threshold_local_assor) {
+                                        && Sum_LocalAssortativity > botnet_detection_threshold_local_assor
+                                            && coefficient_variation < coefficient_threshold) {
                             pw_2.println(com_id + "," + m + "," + n + "," + Sum_BGP / m + "," + Sum_MCS / n + "," + Sum_InternalDegree / n + "," + Sum_LocalAssortativity + "," + coefficient_variation);
                             pw_2.println(nodes);
                             pw_2.println(nodes_ips);

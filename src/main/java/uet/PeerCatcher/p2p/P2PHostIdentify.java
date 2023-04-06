@@ -64,13 +64,6 @@ public class P2PHostIdentify {
 			String bppin = sets[3];
 			bppin = bppin.substring(0, bppin.length() - 1);
             if (bppin.length() == 0) bppin = "0";
-//			System.out.println(line[0] + "," + sets[0] + "," + bppout + "," + bppin);
-//            Integer bppout = Integer.parseInt(sets[2]);0
-//            Integer bppin = Integer.parseInt(sets[3]);
-//            bppout /= p2p_host_merging_threshold;
-//            bppin /= p2p_host_merging_threshold;
-            //System.out.println(line[0] + "," + sets[0] + "," + Integer.toString(bppout) + "," + Integer.toString(bppin));
-//            context.write(new Text(line[0] + "," + sets[0] + "," + Integer.toString(bppout) + "," + Integer.toString(bppin)), new Text(sets[1]));
             context.write(new Text(line[0] + "," + sets[0] + "," + bppout + "," + bppin), new Text(sets[1]));
         }
     }
@@ -155,8 +148,6 @@ public class P2PHostIdentify {
         Job_p2p_host_detection.setOutputValueClass(Text.class);
         ControlledJob ctrl_Job_p2p_host_detection = new ControlledJob(conf);
         ctrl_Job_p2p_host_detection.setJob(Job_p2p_host_detection);
-//		FileInputFormat.addInputPath(Job_p2p_host_detection,
-//				new Path(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/INFileModiPUT/Legi"));
         FileInputFormat.addInputPath(Job_p2p_host_detection,
                 new Path(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/INPUT/P2P"));
         FileInputFormat.addInputPath(Job_p2p_host_detection,
