@@ -24,11 +24,14 @@ import uet.PeerCatcher.main.FileModifier;
 
 public class P2PHostIdentify {
 
+
+    //Mapper class for P2P host detection Map-Reduce Module
     public static class P2PHostDetectionMapper extends Mapper<Object, Text, Text, Text> {
         @Override
         protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] line = value.toString().split("\t");
             String[] sets = line[1].split(",");
+            // Merging through byte-per-packet threshold
             try {
                 long bppout = Long.parseLong(sets[2]);
                 long bppin = Long.parseLong(sets[3]);
@@ -37,7 +40,7 @@ public class P2PHostIdentify {
                 context.write(new Text(line[0] + "," + sets[0] + "," + bppout + "," + bppin), new Text(sets[1]));
 
             } catch (NumberFormatException e) {
-                System.out.println("Không thể chuyển đổi chuỗi thành số Long");
+                System.out.println("Cannot convert string to long");
                 System.exit(0);
             }
 
@@ -45,7 +48,7 @@ public class P2PHostIdentify {
         }
     }
 
-
+    //Reducer class for P2P host detection Map-Reduce Module
     public static class P2PHostDetectionReducer extends Reducer<Text, Text, Text, Text> {
         @Override
         protected void reduce(Text key, Iterable<Text> values, Context context)
@@ -78,12 +81,14 @@ public class P2PHostIdentify {
         }
     }
 
-
+    //P2P host detection threshold for detecting P2P flows
     private static int p2PHostDetectionThreshold = PeerCatcherConfigure.P2P_HOST_DETECTION_THRESHOLD_DEFAULT;
+    //Byte per packet threshold for merging flows
     private static int bytePerPacketThreshold = PeerCatcherConfigure.BYTE_PER_PACKET_THRESHOLD;
 
     public static void run() throws IllegalArgumentException, IOException {
 
+        //Create MAP-REDUCE job for detecting P2P flows.
         BasicConfigurator.configure();
         JobConf conf = new JobConf(P2PHostIdentify.class);
 
@@ -109,7 +114,7 @@ public class P2PHostIdentify {
                 new Path(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_detection"));
         jobP2PHostDetection.setNumReduceTasks(18);
 
-
+        // Run job
         JobControl jobCtrl = new JobControl("ctrl_p2p_host_detection");
         jobCtrl.addJob(ctrlJobP2PHostDetection);
         Thread t = new Thread(jobCtrl);
