@@ -1,5 +1,13 @@
 package uet.PeerCatcher.louvain;
 
+/**
+ * ModularityOptimizer
+ *
+ * @author Ludo Waltman
+ * @author Nees Jan van Eck
+ * @version 1.2.0, 05/14/14
+ */
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Console;

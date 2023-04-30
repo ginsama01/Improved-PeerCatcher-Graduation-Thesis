@@ -14,8 +14,7 @@ import uet.PeerCatcher.main.FileModifier;
 
 public class LouvainMain {
 
-    public static void Louvain(String ID, double resolution_) throws IOException {
-        String Graph = "Graph_" + ID;
+    public static void Louvain(double resolution_) throws IOException {
         boolean printOutput, update;
         double modularity, maxModularity, resolution, resolution2;
         int algorithm, i, j, modularityFunction, nClusters, nIterations, nRandomStarts;
@@ -24,10 +23,10 @@ public class LouvainMain {
         Network network;
         Random random;
 
-        File f = new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/louvain_communities_detection");
+        File f = new File(PeerCatcherConfigure.ROOT_LOCATION + "/louvain_communities_detection");
         if (!f.exists()) {
             if (f.mkdir()) {
-                System.out.println("Directory " + PeerCatcherConfigure.ROOT_LOCATION + Graph
+                System.out.println("Directory " + PeerCatcherConfigure.ROOT_LOCATION
                         + "/louvain_communities_detection" + " is created!");
             } else {
                 System.out.println("Failed to create directory!");
@@ -42,8 +41,8 @@ public class LouvainMain {
         randomSeed = 0;
         printOutput = false; // (1 > 0);
 
-        String inputFileName = PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/LouvainInput.txt";
-        String outputFileName = PeerCatcherConfigure.ROOT_LOCATION + Graph + "/louvain_communities_detection/" + Graph + "_"
+        String inputFileName = PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/LouvainInput.txt";
+        String outputFileName = PeerCatcherConfigure.ROOT_LOCATION + "/louvain_communities_detection/" + "_"
                 + resolution + ".txt";
 
         if (printOutput) {
@@ -208,11 +207,10 @@ public class LouvainMain {
         return network;
     }
 
-    public static void run(String ID) throws IllegalArgumentException, IOException {
-        String Graph = "Graph_" + ID;
-        FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/louvain_communities_detection"));
+    public static void run() throws IllegalArgumentException, IOException {
+        FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + "/louvain_communities_detection"));
         double i = PeerCatcherConfigure.LOUVAIN_COMMUNITY_DETECTION_RESOLUTION;
-        LouvainMain.Louvain(ID, i);
+        LouvainMain.Louvain(i);
     }
 
     private static void writeOutputFile(String fileName, int[] cluster) throws IOException {

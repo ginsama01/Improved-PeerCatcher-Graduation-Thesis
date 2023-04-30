@@ -21,22 +21,22 @@ public class BotnetIdentify {
     public static double botnet_detection_threshold_internal_degree = PeerCatcherConfigure.INTERNAL_DEGREE_THRESHOLD;
     public static double botnet_detection_threshold_local_assor = PeerCatcherConfigure.LOCAL_ASSORTATIVITY_THRESHOLD;
     public static double coefficient_threshold = PeerCatcherConfigure.COEFFICIENT_VARIATION_THRESHOLD;
-    public static void Botnet_Detection(String Graph) throws IOException {
-        FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/botnet_detection"));
-        File f = new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/botnet_detection");
+    public static void Botnet_Detection() throws IOException {
+        FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection"));
+        File f = new File(PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection");
 
         if (!f.exists()) {
             if (f.mkdir()) {
                 System.out.println(
-                        "Directory " + PeerCatcherConfigure.ROOT_LOCATION + Graph + "/botnet_detection" + " is created!");
+                        "Directory " + PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection" + " is created!");
             } else {
                 System.out.println("Failed to create directory!");
             }
         }
 
         //Calculate neighbors set and local assortativity
-        File graph_file =  new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/LouvainInput.txt");
-        File ip_file = new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/IDtoIP.txt");
+        File graph_file =  new File(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/LouvainInput.txt");
+        File ip_file = new File(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/IDtoIP.txt");
         int number_of_node = 0;
         if (ip_file.isFile()) {
             String line = "";
@@ -141,12 +141,12 @@ public class BotnetIdentify {
         }
 
 
-        FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/communities_scores_calculate"));
-        f = new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/communities_scores_calculate");
+        FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + "/communities_scores_calculate"));
+        f = new File(PeerCatcherConfigure.ROOT_LOCATION + "/communities_scores_calculate");
 
         if (!f.exists()) {
             if (f.mkdir()) {
-                System.out.println("Directory " + PeerCatcherConfigure.ROOT_LOCATION + Graph
+                System.out.println("Directory " + PeerCatcherConfigure.ROOT_LOCATION
                         + "/communities_scores_calculate" + " is created!");
             } else {
                 System.out.println("Failed to create directory!");
@@ -154,7 +154,7 @@ public class BotnetIdentify {
         }
 
         PotentialIP.clear();
-        File folder = new File(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/louvain_communities_detection");
+        File folder = new File(PeerCatcherConfigure.ROOT_LOCATION + "/louvain_communities_detection");
         File[] listOfFiles = folder.listFiles();
 
         for (File file : listOfFiles) {
@@ -186,14 +186,14 @@ public class BotnetIdentify {
                     HashSet<String> nodes_ips = new HashSet<String>();
 
                     if (nodes.size() > 2) {
-                        double resolution = Double.parseDouble(file.getName().split("_")[2].split("\\.")[0]);
+                        double resolution = Double.parseDouble(file.getName().split("_")[1].split("\\.")[0]);
                         PrintWriter pw = new PrintWriter(
                                 new FileOutputStream(
-                                        new File(PeerCatcherConfigure.ROOT_LOCATION + Graph
-                                                + "/communities_scores_calculate/" + Graph + "_" + resolution + ".txt"),
+                                        new File(PeerCatcherConfigure.ROOT_LOCATION
+                                                + "/communities_scores_calculate/" + "_" + resolution + ".txt"),
                                         true));
                         PrintWriter pw_2 = new PrintWriter(new FileOutputStream(new File(PeerCatcherConfigure.ROOT_LOCATION
-                                + Graph + "/communities_scores_calculate/" + Graph + "_" + resolution + "_2.txt"),
+                                + "/communities_scores_calculate/" + "_" + resolution + "_2.txt"),
                                 true));
 
                         double Sum_BGP = 0;
@@ -207,7 +207,7 @@ public class BotnetIdentify {
                         double[] destination_diversity = new double[nodes.size()];
 
                         BufferedReader br_BGP = new BufferedReader(new FileReader(
-                                PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/IDtoIP.txt"));
+                                PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/IDtoIP.txt"));
 
                         while ((line = br_BGP.readLine()) != null) {
                             if (nodes.contains(line.split("\t")[0])) {
@@ -235,12 +235,12 @@ public class BotnetIdentify {
                         double coefficient_variation = standard_deviation / mean;
 
                         BufferedReader br_MCS = new BufferedReader(new FileReader(
-                                PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/LouvainInput.txt"));
+                                PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/LouvainInput.txt"));
                         while ((line = br_MCS.readLine()) != null) {
 
                             if (nodes.contains(line.split("\t")[0]) && nodes.contains(line.split("\t")[1])) {
                                 Sum_MCS += Double.parseDouble(line.split("\t")[2]);
-                                Sum_InternalDegree += 2;
+                                Sum_InternalDegree += 1;
                             }
                         }
                         br_MCS.close();
@@ -253,17 +253,18 @@ public class BotnetIdentify {
                                 && Sum_MCS / n > botnet_detection_threshold_mcs
                                     && Sum_InternalDegree > botnet_detection_threshold_internal_degree
                                         && Sum_LocalAssortativity > botnet_detection_threshold_local_assor
-                                            && coefficient_variation < coefficient_threshold) {
+                                            && coefficient_variation < coefficient_threshold
+                        ) {
                             pw_2.println(com_id + "," + m + "," + n + "," + Sum_BGP / m + "," + Sum_MCS / n + "," + Sum_InternalDegree / n + "," + Sum_LocalAssortativity + "," + coefficient_variation);
                             pw_2.println(nodes);
                             pw_2.println(nodes_ips);
                             PotentialIP.addAll(nodes);
 
                             PrintWriter pw_ = new PrintWriter(
-                                    new FileOutputStream(new File(PeerCatcherConfigure.ROOT_LOCATION + Graph
+                                    new FileOutputStream(new File(PeerCatcherConfigure.ROOT_LOCATION
                                             + "/botnet_detection/bot_detection_input.txt"), true));
                             BufferedReader br_ = new BufferedReader(new FileReader(
-                                    PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/LouvainInput.txt"));
+                                    PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/LouvainInput.txt"));
                             Set<String> Edges = new HashSet<String>();
                             while ((line = br_.readLine()) != null) {
                                 if (nodes.contains(line.split("\t")[0]) && nodes.contains(line.split("\t")[1])) {
@@ -282,9 +283,9 @@ public class BotnetIdentify {
         }
 
         PrintWriter pw = new PrintWriter(
-                PeerCatcherConfigure.ROOT_LOCATION + Graph + "/botnet_detection/botnet_detection.txt");
+                PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection/botnet_detection.txt");
         BufferedReader br = new BufferedReader(
-                new FileReader(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/mutual_contact_graph/IDtoIP.txt"));
+                new FileReader(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/IDtoIP.txt"));
         String line = "";
         Set<String> PotentialIP_Set = new HashSet<String>();
         while ((line = br.readLine()) != null) {
@@ -296,22 +297,20 @@ public class BotnetIdentify {
         br.close();
         pw.close();
 
-        pw = new PrintWriter(PeerCatcherConfigure.ROOT_LOCATION + Graph + "/botnet_detection/botnet_detection_2.txt");
+        pw = new PrintWriter(PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection/botnet_detection_2.txt");
         for (String i : PotentialIP_Set) {
             pw.println(i);
         }
         pw.close();
     }
 
-    public static void run(String ID) throws IllegalArgumentException, IOException {
+    public static void run() throws IllegalArgumentException, IOException {
         for (double botnet_detection_threshold_bgp_double : PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_BGP_SET) {
             for (double botnet_detection_threshold_mcs_double : PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_MCS_SET) {
                 botnet_detection_threshold_bgp = botnet_detection_threshold_bgp_double;
                 botnet_detection_threshold_mcs = botnet_detection_threshold_mcs_double;
 
-                String Graph = "Graph_" + ID;
-
-                Botnet_Detection(Graph);
+                Botnet_Detection();
 
             }
         }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import uet.PeerCatcher.louvain.LouvainMain;
+import uet.PeerCatcher.mcg.CalculateFrequency;
 import uet.PeerCatcher.p2p.P2PHostIdentify;
 import uet.PeerCatcher.mcg.CalculateMutualContactScore;
 import uet.PeerCatcher.botnet.BotnetIdentify;
@@ -16,23 +17,24 @@ public class MAIN {
         long st_time = System.currentTimeMillis();
 
         long st_time_1 = System.currentTimeMillis();
-        P2PHostIdentify.run(ID + "");
+        P2PHostIdentify.run();
         long end_time_1 = System.currentTimeMillis();
-
+        CalculateFrequency.run();
         long st_time_2 = System.currentTimeMillis();
-        CalculateMutualContactScore.run(ID + "");
+        CalculateMutualContactScore.run();
         long end_time_2 = System.currentTimeMillis();
 
         long st_time_3 = System.currentTimeMillis();
-        LouvainMain.run(ID + "");
+        LouvainMain.run();
         long end_time_3 = System.currentTimeMillis();
 
         long st_time_4 = System.currentTimeMillis();
-        BotnetIdentify.run(ID + "");
+        BotnetIdentify.run();
         long end_time_4 = System.currentTimeMillis();
 
         long end_time = System.currentTimeMillis();
-        
+
+        pw.close();
     }
 
     public static void main(String[] args) throws Exception {

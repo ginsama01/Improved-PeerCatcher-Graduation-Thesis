@@ -67,8 +67,8 @@ public class GenerateMutualContactGraph implements Runnable {
 
         for (String s : s1) {
             dstIP = s;
-            temp1 = CalculateMutualContactScore.map_Id2Ip.get(node1).split(",");
-            temp2 = CalculateMutualContactScore.map_Id2Ip.get(node2).split(",");
+            temp1 = CalculateMutualContactScore.mapId2Ip.get(node1).split(",");
+            temp2 = CalculateMutualContactScore.mapId2Ip.get(node2).split(",");
             srcIP1 = temp1[0];
             srcIP2 = temp2[0];
             proto = temp1[1];
@@ -76,12 +76,12 @@ public class GenerateMutualContactGraph implements Runnable {
             bppin = temp1[3];
 
             try {
-                tempFreq1 = CalculateMutualContactScore.map_p2p.get(srcIP1 + "\t" + proto + "," + dstIP + "," + bppout + "," + bppin);
+                tempFreq1 = CalculateMutualContactScore.mapP2P.get(srcIP1 + "\t" + proto + "," + dstIP + "," + bppout + "," + bppin);
 //                System.out.println(tempFreq1);
                 if(tempFreq1 < frequency_threshold) {
                     continue;
                 }
-                tempFreq2 = CalculateMutualContactScore.map_p2p.get(srcIP2 + "\t" + proto + "," + dstIP + "," + bppout + "," + bppin);
+                tempFreq2 = CalculateMutualContactScore.mapP2P.get(srcIP2 + "\t" + proto + "," + dstIP + "," + bppout + "," + bppin);
 //                System.out.println(tempFreq2);
                 if(tempFreq2 < frequency_threshold) {
                     continue;

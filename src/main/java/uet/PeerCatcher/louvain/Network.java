@@ -1,5 +1,12 @@
 package uet.PeerCatcher.louvain;
 
+/**
+ * Network
+ *
+ * @author Ludo Waltman
+ * @author Nees Jan van Eck
+ * @version 1.2.0, 05/14/14
+ */
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
