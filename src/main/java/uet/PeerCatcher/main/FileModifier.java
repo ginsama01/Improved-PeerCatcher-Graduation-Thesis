@@ -13,7 +13,6 @@ public class FileModifier {
                 }
             }
         }
-        // System.out.println("The directory "+dir.toString()+" is deleted.");
         return dir.delete();
     }
 }

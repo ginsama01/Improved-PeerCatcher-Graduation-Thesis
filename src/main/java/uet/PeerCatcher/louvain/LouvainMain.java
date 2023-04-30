@@ -41,8 +41,8 @@ public class LouvainMain {
         randomSeed = 0;
         printOutput = false; // (1 > 0);
 
-        String inputFileName = PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/LouvainInput.txt";
-        String outputFileName = PeerCatcherConfigure.ROOT_LOCATION + "/louvain_communities_detection/" + "_"
+        String inputFileName = PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/edges.txt";
+        String outputFileName = PeerCatcherConfigure.ROOT_LOCATION + "/louvain_communities_detection/" + "community_"
                 + resolution + ".txt";
 
         if (printOutput) {

@@ -15,12 +15,12 @@ import uet.PeerCatcher.main.FileModifier;
 public class BotnetIdentify {
 
     public static Set<String> PotentialIP = new HashSet<String>();
+    public static double botnetDetectionThresholdBgp = PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_BGP;
+    public static double botnetDetectionThresholdMcs = PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_MCS;
+    public static double botnetDetectionThresholdInternalDegree = PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_INTERNAL_DEGREE;
+    public static double botnetDetectionThresholdLocalAssor = PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_LOCAL_ASSOCIATIVITY;
+    public static double botnetDetectionCoefficientThreshold = PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_COEFFICIENT_VARIATION;
 
-    public static double botnet_detection_threshold_bgp;
-    public static double botnet_detection_threshold_mcs;
-    public static double botnet_detection_threshold_internal_degree = PeerCatcherConfigure.INTERNAL_DEGREE_THRESHOLD;
-    public static double botnet_detection_threshold_local_assor = PeerCatcherConfigure.LOCAL_ASSORTATIVITY_THRESHOLD;
-    public static double coefficient_threshold = PeerCatcherConfigure.COEFFICIENT_VARIATION_THRESHOLD;
     public static void Botnet_Detection() throws IOException {
         FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection"));
         File f = new File(PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection");
@@ -35,24 +35,25 @@ public class BotnetIdentify {
         }
 
         //Calculate neighbors set and local assortativity
-        File graph_file =  new File(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/LouvainInput.txt");
-        File ip_file = new File(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/IDtoIP.txt");
-        int number_of_node = 0;
-        if (ip_file.isFile()) {
+        File edgesFile =  new File(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/edges.txt");
+        File verticesFile = new File(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/vertices.txt");
+        int numberOfNode = 0;
+        if (verticesFile.isFile()) {
             String line = "";
-            BufferedReader br = new BufferedReader((new FileReader(ip_file.getPath())));
+            BufferedReader br = new BufferedReader((new FileReader(verticesFile.getPath())));
             while (br.readLine() != null) {
-                ++number_of_node;
+                ++numberOfNode;
             }
         }
-        Vector[] neighbors = new Vector[number_of_node + 5];
-        for (int i = 0; i < number_of_node; ++i) {
+        Vector[] neighbors = new Vector[numberOfNode + 5];
+        for (int i = 0; i < numberOfNode; ++i) {
             neighbors[i] = new Vector<Integer>();
         }
-        // Neighbors
-        if (graph_file.isFile()) {
+
+        //Find neighbors
+        if (edgesFile.isFile()) {
             String line = "";
-            BufferedReader br = new BufferedReader((new FileReader(graph_file.getPath())));
+            BufferedReader br = new BufferedReader((new FileReader(edgesFile.getPath())));
             while ((line = br.readLine()) != null) {
                 String[] str = line.split("\t");
                 Integer vertex1 = Integer.parseInt(str[0]);
@@ -63,27 +64,27 @@ public class BotnetIdentify {
         }
 
         //Calculate local assortativity
-        double[] local_assortativity = new double[number_of_node];
-        Integer[] component = new Integer[number_of_node];
-        int number_of_component = 0;
-        for (int i = 0; i < number_of_node; ++i) {
-            local_assortativity[i] = 0.0;
+        double[] localAssortativity = new double[numberOfNode];
+        Integer[] component = new Integer[numberOfNode];
+        int numberOfComponent = 0;
+        for (int i = 0; i < numberOfNode; ++i) {
+            localAssortativity[i] = 0.0;
             component[i] = 0;
         }
 
-        // Tinh theo cac thanh phan lien thong
-        for (int i = 0; i < number_of_node; ++i) {
+        //Identify connected components
+        for (int i = 0; i < numberOfNode; ++i) {
             if (component[i] == 0) {
                 Queue<Integer> q = new LinkedList<Integer>();
                 q.add(i);
-                component[i] = ++number_of_component;
+                component[i] = ++numberOfComponent;
                 while (!q.isEmpty()) {
                     int u = q.peek();
                     q.remove();
                     for (int j = 0; j < neighbors[u].size(); ++j) {
                         int v = (int) neighbors[u].get(j);
                         if (component[v] == 0) {
-                            component[v] = number_of_component;
+                            component[v] = numberOfComponent;
                             q.add(v);
                         }
                     }
@@ -91,10 +92,10 @@ public class BotnetIdentify {
             }
         }
 
-        //Calculate cua tung tplt
-        for (int i = 1; i <= number_of_component; ++i) {
+        //Calculate in terms of connected components
+        for (int i = 1; i <= numberOfComponent; ++i) {
             Vector<Integer> tmp = new Vector<Integer>();
-            for (int j = 0; j < number_of_node; ++j) {
+            for (int j = 0; j < numberOfNode; ++j) {
                 if (component[j] == i) {
                     tmp.add(j);
                 }
@@ -104,38 +105,37 @@ public class BotnetIdentify {
             if (n < 2) continue;
             int m = 0; //total edge
             double expectation = 0;
-            double standard_deviation = 0;
-            int[] degree_distribution = new int[number_of_node];
-            for (int j = 0; j < number_of_node; ++j) {
-                degree_distribution[j] = 0;
+            double standardDeviation = 0;
+            int[] degreeDistribution = new int[numberOfNode];
+            for (int j = 0; j < numberOfNode; ++j) {
+                degreeDistribution[j] = 0;
             }
             for (Integer t :tmp) {
-                degree_distribution[neighbors[t].size()]++;
+                degreeDistribution[neighbors[t].size()]++;
                 m += neighbors[t].size();
             }
-            double avg_degree = (double)m / n;
+            double avgDegree = (double)m / n;
             m /= 2;
-            for (int j = 0; j < number_of_node - 1; ++j) {
-                double excess_degree_distribution = (double) (j + 1) * (double) degree_distribution[j + 1] / (avg_degree * n);
-                expectation += excess_degree_distribution * j;
+            for (int j = 0; j < numberOfNode - 1; ++j) {
+                double excessDegreeDistribution = (double) (j + 1) * (double) degreeDistribution[j + 1] / (avgDegree * n);
+                expectation += excessDegreeDistribution * j;
             }
-            for (int j = 0; j < number_of_node - 1; ++j) {
-                double excess_degree_distribution = (double) (j + 1) * (double) degree_distribution[j + 1] / (avg_degree * n);
-                standard_deviation += (expectation - j) * (expectation - j) * excess_degree_distribution;
+            for (int j = 0; j < numberOfNode - 1; ++j) {
+                double excessDegreeDistribution = (double) (j + 1) * (double) degreeDistribution[j + 1] / (avgDegree * n);
+                standardDeviation += (expectation - j) * (expectation - j) * excessDegreeDistribution;
             }
-//            if (i == 1) System.out.println("Expectation" + expectation);
-//            if (i == 1) System.out.println("Standard deviation" + standard_deviation);
+
             for (Integer t : tmp) {
-                if (standard_deviation == 0) {
-                    local_assortativity[t] = 1.0 / n;
+                if (standardDeviation == 0) {
+                    localAssortativity[t] = 1.0 / n;
                 } else {
                     int degree = neighbors[t].size() - 1;
-                    double neighbor_degree = 0;
+                    double neighborDegree = 0;
                     for (Object neighbor : neighbors[t]) {
-                        neighbor_degree += (neighbors[(Integer)neighbor].size() - 1);
+                        neighborDegree += (neighbors[(Integer)neighbor].size() - 1);
                     }
-                    neighbor_degree /= neighbors[t].size();
-                    local_assortativity[t] = (double)degree * (degree + 1) * (neighbor_degree - expectation) / (2.0 * m * standard_deviation);
+                    neighborDegree /= neighbors[t].size();
+                    localAssortativity[t] = (double)degree * (degree + 1) * (neighborDegree - expectation) / (2.0 * m * standardDeviation);
                 }
             }
         }
@@ -153,6 +153,7 @@ public class BotnetIdentify {
             }
         }
 
+        //Identify botnet communities
         PotentialIP.clear();
         File folder = new File(PeerCatcherConfigure.ROOT_LOCATION + "/louvain_communities_detection");
         File[] listOfFiles = folder.listFiles();
@@ -164,118 +165,118 @@ public class BotnetIdentify {
                 BufferedReader br = new BufferedReader(new FileReader(file.getPath())); // Read the Community Detection
                 // Result
 
-                HashMap<String, ArrayList<String>> louvain_results = new HashMap<String, ArrayList<String>>();
+                HashMap<String, ArrayList<String>> louvainResults = new HashMap<String, ArrayList<String>>();
 
                 while ((line = br.readLine()) != null) {
 
                     String[] str = line.split(",");
-                    if (louvain_results.containsKey(str[1])) {
-                        louvain_results.get(str[1]).add(str[0]);
+                    if (louvainResults.containsKey(str[1])) {
+                        louvainResults.get(str[1]).add(str[0]);
                     } else {
                         ArrayList<String> temp = new ArrayList<String>();
                         temp.add(str[0]);
-                        louvain_results.put(str[1], temp);
+                        louvainResults.put(str[1], temp);
                     }
                 }
                 br.close();
 
-                for (Entry<String, ArrayList<String>> entry : louvain_results.entrySet()) {
+                for (Entry<String, ArrayList<String>> entry : louvainResults.entrySet()) {
                     String com_id = entry.getKey();
                     ArrayList<String> nodes = entry.getValue();
 
-                    HashSet<String> nodes_ips = new HashSet<String>();
+                    HashSet<String> nodesIps = new HashSet<String>();
 
                     if (nodes.size() > 2) {
                         double resolution = Double.parseDouble(file.getName().split("_")[1].split("\\.")[0]);
                         PrintWriter pw = new PrintWriter(
                                 new FileOutputStream(
                                         new File(PeerCatcherConfigure.ROOT_LOCATION
-                                                + "/communities_scores_calculate/" + "_" + resolution + ".txt"),
+                                                + "/communities_scores_calculate/" + "community_scores_" + resolution + ".txt"),
                                         true));
-                        PrintWriter pw_2 = new PrintWriter(new FileOutputStream(new File(PeerCatcherConfigure.ROOT_LOCATION
-                                + "/communities_scores_calculate/" + "_" + resolution + "_2.txt"),
+                        PrintWriter pw2 = new PrintWriter(new FileOutputStream(new File(PeerCatcherConfigure.ROOT_LOCATION
+                                + "/communities_scores_calculate/" + "community_scores__" + resolution + "_2.txt"),
                                 true));
 
-                        double Sum_BGP = 0;
-                        double Sum_MCS = 0;
-                        double Sum_InternalDegree = 0;
-                        double Sum_LocalAssortativity = 0;
-                        double m = 0;
+                        double sumBGP = 0;
+                        double sumMCS = 0;
+                        double sumInternalDegree = 0;
+                        double sumLocalAssortativity = 0;
                         double n = 0;
+                        double m = 0;
                         double mean = 0;
-                        double standard_deviation = 0;
-                        double[] destination_diversity = new double[nodes.size()];
+                        double standardDeviation = 0;
+                        double[] destinationDiversity = new double[nodes.size()];
 
-                        BufferedReader br_BGP = new BufferedReader(new FileReader(
-                                PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/IDtoIP.txt"));
+                        BufferedReader brBGP = new BufferedReader(new FileReader(
+                                PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/vertices.txt"));
 
-                        while ((line = br_BGP.readLine()) != null) {
+                        while ((line = brBGP.readLine()) != null) {
                             if (nodes.contains(line.split("\t")[0])) {
-                                destination_diversity[(int)m] = Double.parseDouble(line.split("\t")[3]);
-                                mean += destination_diversity[(int)m];
-                                m += 1;
-                                Sum_LocalAssortativity += local_assortativity[Integer.parseInt(line.split("\t")[0])];
-                                Sum_BGP += Double.parseDouble(line.split("\t")[3])
+                                destinationDiversity[(int)n] = Double.parseDouble(line.split("\t")[3]);
+                                mean += destinationDiversity[(int)n];
+                                n += 1;
+                                sumLocalAssortativity += localAssortativity[Integer.parseInt(line.split("\t")[0])];
+                                sumBGP += Double.parseDouble(line.split("\t")[3])
                                         / Double.parseDouble(line.split("\t")[5]);
-                                nodes_ips.add(line.split("\t")[1] + "," + line.split("\t")[2] + ","
+                                nodesIps.add(line.split("\t")[1] + "," + line.split("\t")[2] + ","
                                         + line.split("\t")[3] + "," + line.split("\t")[4] + "," + line.split("\t")[5]);
 
                             }
                         }
-                        br_BGP.close();
+                        brBGP.close();
 
-                        mean /= m;
-                        for (int i = 0; i < (int)m; ++i) {
-                            standard_deviation += Math.pow(destination_diversity[i] - mean, 2);
+                        mean /= n;
+                        for (int i = 0; i < (int)n; ++i) {
+                            standardDeviation += Math.pow(destinationDiversity[i] - mean, 2);
                         }
 
-                        standard_deviation /= m;
-                        standard_deviation = Math.sqrt((standard_deviation));
+                        standardDeviation /= n;
+                        standardDeviation = Math.sqrt((standardDeviation));
 
-                        double coefficient_variation = standard_deviation / mean;
+                        double coefficient_variation = standardDeviation / mean;
 
                         BufferedReader br_MCS = new BufferedReader(new FileReader(
-                                PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/LouvainInput.txt"));
+                                PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/edges.txt"));
                         while ((line = br_MCS.readLine()) != null) {
 
                             if (nodes.contains(line.split("\t")[0]) && nodes.contains(line.split("\t")[1])) {
-                                Sum_MCS += Double.parseDouble(line.split("\t")[2]);
-                                Sum_InternalDegree += 1;
+                                sumMCS += Double.parseDouble(line.split("\t")[2]);
+                                sumInternalDegree += 1;
                             }
                         }
                         br_MCS.close();
 
-                        n = m * (m-1) / 2;
+                        m = n * (n-1) / 2;
 
-                        pw.println(com_id + "," + m + "," + n + "," + Sum_BGP / m + "," + Sum_MCS / n + "," + Sum_InternalDegree / n + "," + Sum_LocalAssortativity + "," + coefficient_variation);
+                        pw.println(com_id + "," + n + "," + m + "," + sumBGP / n + "," + sumMCS / m + "," + sumInternalDegree / m + "," + sumLocalAssortativity + "," + coefficient_variation);
 
-                        if (Sum_BGP / m > botnet_detection_threshold_bgp
-                                && Sum_MCS / n > botnet_detection_threshold_mcs
-                                    && Sum_InternalDegree > botnet_detection_threshold_internal_degree
-                                        && Sum_LocalAssortativity > botnet_detection_threshold_local_assor
-                                            && coefficient_variation < coefficient_threshold
+                        if (sumBGP / n > botnetDetectionThresholdBgp
+                                && sumMCS / m > botnetDetectionThresholdMcs
+                                    && sumInternalDegree / m > botnetDetectionThresholdInternalDegree
+                                        && sumLocalAssortativity > botnetDetectionThresholdLocalAssor
+                                            && coefficient_variation < botnetDetectionCoefficientThreshold
                         ) {
-                            pw_2.println(com_id + "," + m + "," + n + "," + Sum_BGP / m + "," + Sum_MCS / n + "," + Sum_InternalDegree / n + "," + Sum_LocalAssortativity + "," + coefficient_variation);
-                            pw_2.println(nodes);
-                            pw_2.println(nodes_ips);
+                            pw2.println(com_id + "," + n + "," + m + "," + sumBGP / n + "," + sumMCS / m + "," + sumInternalDegree / m + "," + sumLocalAssortativity + "," + coefficient_variation);
+                            pw2.println(nodes);
+                            pw2.println(nodesIps);
                             PotentialIP.addAll(nodes);
 
-                            PrintWriter pw_ = new PrintWriter(
+                            PrintWriter pw3 = new PrintWriter(
                                     new FileOutputStream(new File(PeerCatcherConfigure.ROOT_LOCATION
                                             + "/botnet_detection/bot_detection_input.txt"), true));
-                            BufferedReader br_ = new BufferedReader(new FileReader(
-                                    PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/LouvainInput.txt"));
+                            BufferedReader br3 = new BufferedReader(new FileReader(
+                                    PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/edges.txt"));
                             Set<String> Edges = new HashSet<String>();
-                            while ((line = br_.readLine()) != null) {
+                            while ((line = br3.readLine()) != null) {
                                 if (nodes.contains(line.split("\t")[0]) && nodes.contains(line.split("\t")[1])) {
                                     Edges.add(line.split("\t")[0] + "," + line.split("\t")[1]);
                                 }
                             }
-                            pw_.println(nodes.toString() + "\t" + Edges.toString());
-                            br_.close();
-                            pw_.close();
+                            pw3.println(nodes.toString() + "\t" + Edges.toString());
+                            br3.close();
+                            pw3.close();
                         }
-                        pw_2.close();
+                        pw2.close();
                         pw.close();
                     }
                 }
@@ -285,7 +286,7 @@ public class BotnetIdentify {
         PrintWriter pw = new PrintWriter(
                 PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection/botnet_detection.txt");
         BufferedReader br = new BufferedReader(
-                new FileReader(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/IDtoIP.txt"));
+                new FileReader(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_graph/vertices.txt"));
         String line = "";
         Set<String> PotentialIP_Set = new HashSet<String>();
         while ((line = br.readLine()) != null) {
@@ -305,14 +306,6 @@ public class BotnetIdentify {
     }
 
     public static void run() throws IllegalArgumentException, IOException {
-        for (double botnet_detection_threshold_bgp_double : PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_BGP_SET) {
-            for (double botnet_detection_threshold_mcs_double : PeerCatcherConfigure.BOTNET_DETECTION_THRESHOLD_MCS_SET) {
-                botnet_detection_threshold_bgp = botnet_detection_threshold_bgp_double;
-                botnet_detection_threshold_mcs = botnet_detection_threshold_mcs_double;
-
-                Botnet_Detection();
-
-            }
-        }
+        Botnet_Detection();
     }
 }

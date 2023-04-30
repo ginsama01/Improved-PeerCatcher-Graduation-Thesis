@@ -121,7 +121,6 @@ public class P2PHostIdentify {
         t.start();
 
         while (true) {
-
             if (jobCtrl.allFinished()) {
                 System.out.println(jobCtrl.getSuccessfulJobList());
                 jobCtrl.stop();

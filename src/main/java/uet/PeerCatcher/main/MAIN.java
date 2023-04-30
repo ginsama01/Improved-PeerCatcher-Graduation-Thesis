@@ -8,32 +8,26 @@ import java.io.PrintWriter;
 import uet.PeerCatcher.louvain.LouvainMain;
 import uet.PeerCatcher.mcg.CalculateFrequency;
 import uet.PeerCatcher.p2p.P2PHostIdentify;
-import uet.PeerCatcher.mcg.CalculateMutualContactScore;
+import uet.PeerCatcher.mcg.CreateMutualContactGraph;
 import uet.PeerCatcher.botnet.BotnetIdentify;
 public class MAIN {
     public static void Experiment(int ID) throws IllegalArgumentException, IOException, InterruptedException {
         PrintWriter pw = new PrintWriter(new FileOutputStream(new File("ExTime"), true));
 
-        long st_time = System.currentTimeMillis();
+        long st_time_start = System.currentTimeMillis();
 
-        long st_time_1 = System.currentTimeMillis();
         P2PHostIdentify.run();
-        long end_time_1 = System.currentTimeMillis();
+
         CalculateFrequency.run();
-        long st_time_2 = System.currentTimeMillis();
-        CalculateMutualContactScore.run();
-        long end_time_2 = System.currentTimeMillis();
 
-        long st_time_3 = System.currentTimeMillis();
+        CreateMutualContactGraph.run();
+
         LouvainMain.run();
-        long end_time_3 = System.currentTimeMillis();
 
-        long st_time_4 = System.currentTimeMillis();
         BotnetIdentify.run();
-        long end_time_4 = System.currentTimeMillis();
 
-        long end_time = System.currentTimeMillis();
-
+        long st_time_end = System.currentTimeMillis();
+        pw.println(st_time_end - st_time_start);
         pw.close();
     }
 
