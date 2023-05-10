@@ -23,7 +23,10 @@ import uet.PeerCatcher.config.PeerCatcherConfigure;
 import uet.PeerCatcher.main.FileModifier;
 
 public class P2PHostIdentify {
-
+    //P2P host detection threshold for detecting P2P flows
+    private static int p2PHostDetectionThreshold = PeerCatcherConfigure.P2P_HOST_DETECTION_THRESHOLD_DEFAULT;
+    //Byte per packet threshold for merging flows
+    private static int bytePerPacketThreshold = PeerCatcherConfigure.BYTE_PER_PACKET_THRESHOLD;
 
     //Mapper class for P2P host detection Map-Reduce Module
     public static class P2PHostDetectionMapper extends Mapper<Object, Text, Text, Text> {
@@ -81,10 +84,7 @@ public class P2PHostIdentify {
         }
     }
 
-    //P2P host detection threshold for detecting P2P flows
-    private static int p2PHostDetectionThreshold = PeerCatcherConfigure.P2P_HOST_DETECTION_THRESHOLD_DEFAULT;
-    //Byte per packet threshold for merging flows
-    private static int bytePerPacketThreshold = PeerCatcherConfigure.BYTE_PER_PACKET_THRESHOLD;
+
 
     public static void run() throws IllegalArgumentException, IOException {
 
@@ -112,6 +112,7 @@ public class P2PHostIdentify {
                 new Path(PeerCatcherConfigure.ROOT_LOCATION + "/INPUT/Wild_P2P"));
         FileOutputFormat.setOutputPath(jobP2PHostDetection,
                 new Path(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_detection"));
+        // set the number of tasks for the reduce part of the job
         jobP2PHostDetection.setNumReduceTasks(18);
 
         // Run job

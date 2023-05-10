@@ -119,12 +119,12 @@ public class CreateMutualContactGraph {
         printWriter.close();
 
         //Read flow frequency into map
-        folder = new File(PeerCatcherConfigure.ROOT_LOCATION + "p2p_host_frequency2/");
+        folder = new File(PeerCatcherConfigure.ROOT_LOCATION + "p2p_host_frequency/");
         listOfFiles = folder.listFiles();
 
         for (File file : listOfFiles) {
             if (file.isFile() && !file.getName().substring(0, 1).equals(".")) {
-                BufferedReader br = new BufferedReader(new FileReader(PeerCatcherConfigure.ROOT_LOCATION + "p2p_host_frequency2/" + file.getName()));
+                BufferedReader br = new BufferedReader(new FileReader(PeerCatcherConfigure.ROOT_LOCATION + "p2p_host_frequency/" + file.getName()));
                 String[] sets;
                 while ((line = br.readLine()) != null) {
                     sets = line.split("\t");

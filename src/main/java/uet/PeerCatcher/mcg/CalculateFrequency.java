@@ -75,7 +75,7 @@ public class CalculateFrequency {
         //Create and run MAP-REDUCE job for frequency calculation of flows.
         JobConf conf = new JobConf(CalculateFrequency.class);
 
-        FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_frequency2"));
+        FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_frequency"));
 
         Job jobCalculateFrequency = Job.getInstance();
         jobCalculateFrequency.setJobName("Job_calculate_frequency");
@@ -88,7 +88,7 @@ public class CalculateFrequency {
         ctrlCalculateFrequency.setJob(jobCalculateFrequency);
 
         FileInputFormat.addInputPath(jobCalculateFrequency, new Path(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_detection"));
-        FileOutputFormat.setOutputPath(jobCalculateFrequency, new Path(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_frequency2"));
+        FileOutputFormat.setOutputPath(jobCalculateFrequency, new Path(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_frequency"));
         jobCalculateFrequency.setNumReduceTasks(5);
 
         JobControl jobCtrl = new JobControl("ctrl_calculate_frequency");
@@ -116,7 +116,7 @@ public class CalculateFrequency {
         ControlledJob ctrlJobGenerateMutualContactSets = new ControlledJob(conf);
         ctrlJobGenerateMutualContactSets.setJob(jobGenerateMutualContactSets);
         FileInputFormat.addInputPath(jobGenerateMutualContactSets,
-                new Path(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_frequency2"));
+                new Path(PeerCatcherConfigure.ROOT_LOCATION + "/p2p_host_frequency"));
         FileOutputFormat.setOutputPath(jobGenerateMutualContactSets,
                 new Path(PeerCatcherConfigure.ROOT_LOCATION + "/mutual_contact_sets"));
         ctrlJobGenerateMutualContactSets.addDependingJob(ctrlCalculateFrequency);   //Set job is only available after other job done.
