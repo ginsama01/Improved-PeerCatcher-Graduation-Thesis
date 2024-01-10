@@ -24,7 +24,6 @@ public class BotnetIdentify {
     public static void Botnet_Detection() throws IOException {
         FileModifier.deleteDir(new File(PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection"));
         File f = new File(PeerCatcherConfigure.ROOT_LOCATION + "/botnet_detection");
-
         if (!f.exists()) {
             if (f.mkdir()) {
                 System.out.println(
