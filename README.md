@@ -1,6 +1,6 @@
 # GRADUATION THESIS - UET - VNU
 
-This is the experimental source code for the graduation thesis of student Nguyen Quang Huy at the University of Engineering and Technology, Vietnam National University in Hanoi with the topic "PEER-TO-PEER BOTNET DETECTION USING GRAPH STRUCTURE FEATURES" .
+This is the experimental source code for the graduation thesis of student Nguyen Quang Huy at the University of Engineering and Technology, Vietnam National University in Hanoi with the topic "PEER-TO-PEER BOTNET DETECTION USING GRAPH STRUCTURE FEATURES". The thesis report is attached in this GitHub and can be viewed at [Graduation_Thesis](Graduation_Thesis.pdf).
 ## Getting Started
 
 These instructions will give you a copy of the project up and running on
